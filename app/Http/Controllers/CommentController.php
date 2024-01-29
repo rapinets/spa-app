@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreCommentRequest;
+use Illuminate\Http\RedirectResponse;
+use App\Models\Comment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class CommentController extends Controller
 {
@@ -14,9 +18,9 @@ class CommentController extends Controller
      */
     public function index()
     {
-        $comments = DB::table('comments')->select('id', 'content')->get();
-
-        return view('comment.index', ['comments' => $comments]);
+        $comments = DB::table('comments')->join('users', 'user_id', '=', 'users.id')->select('users.name', 'comments.id', 'comments.content')->paginate(25);
+        //dd($comments);
+        return view('comment.index', compact('comments'));
     }
 
     /**
@@ -26,7 +30,8 @@ class CommentController extends Controller
      */
     public function create()
     {
-        //
+
+        return view('comment.create');
     }
 
     /**
@@ -35,9 +40,18 @@ class CommentController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreCommentRequest $request): RedirectResponse
     {
-        //
+        $comment = new Comment();
+        $comment->parent_id = $request->id ? $request->id : 0;
+        $comment->user_id = $request->user_id;
+        $comment->content = $request->content;
+
+        if ($comment->save()) {
+            return redirect()->route('/comments');
+        }
+
+        return redirect()->route('comment.create');
     }
 
     /**

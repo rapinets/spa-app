@@ -35,3 +35,12 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 });
+
+Route::middleware('auth')->group(function () {
+    Route::get('comment/create', [CommentController::class, 'create'])->name('comment.create');
+    Route::post('comment', [CommentController::class, 'store'])->name('comment.store');
+    Route::get('comment/{post}', [CommentController::class, 'show'])->name('comment.show');
+    Route::get('comment/{post}/edit', [CommentController::class, 'edit'])->name('comment.edit');
+    Route::patch('comment/{post}', [CommentController::class, 'update'])->name('comment.update');
+    Route::delete('comment/{post}', [CommentController::class, 'destroy'])->name('comment.delete');
+});
