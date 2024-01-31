@@ -4,9 +4,9 @@
 
 @section('content')
 
-<h1 class="display-4 mb-5">Forgot</h1>
+<h5 class="card-header mb-5">Forgot</h5>
 
-<form method="POST" action="{{ route('forgot.process') }}">
+<form class="w-50 mx-auto" method="POST" action="{{ route('forgot.process') }}">
     @csrf
 
     <div class="row mb-4">

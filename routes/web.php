@@ -22,6 +22,7 @@ Route::get('/', function () {
 Route::get('/comments', [CommentController::class, 'index'])->name('comment.index');
 
 Route::middleware('guest')->group(function () {
+
     Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
     Route::post('/register-process', [AuthController::class, 'register'])->name('register.process');
 
@@ -39,8 +40,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('comment/create', [CommentController::class, 'create'])->name('comment.create');
     Route::post('comment', [CommentController::class, 'store'])->name('comment.store');
-    Route::get('comment/{post}', [CommentController::class, 'show'])->name('comment.show');
-    Route::get('comment/{post}/edit', [CommentController::class, 'edit'])->name('comment.edit');
-    Route::patch('comment/{post}', [CommentController::class, 'update'])->name('comment.update');
-    Route::delete('comment/{post}', [CommentController::class, 'destroy'])->name('comment.delete');
+    Route::get('comment/{comment}/edit', [CommentController::class, 'edit'])->name('comment.edit');
+    Route::patch('comment/{comment}', [CommentController::class, 'update'])->name('comment.update');
+    Route::delete('comment/{comment}', [CommentController::class, 'destroy'])->name('comment.delete');
 });

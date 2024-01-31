@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreCommentRequest;
 use Illuminate\Http\RedirectResponse;
 use App\Models\Comment;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Gate;
+//use Illuminate\Http\Request;
+//use Illuminate\Support\Facades\DB;
+//use Illuminate\Support\Facades\Validator;
 
 class CommentController extends Controller
 {
@@ -18,8 +20,10 @@ class CommentController extends Controller
      */
     public function index()
     {
-        $comments = DB::table('comments')->join('users', 'user_id', '=', 'users.id')->select('users.name', 'comments.id', 'comments.content')->paginate(25);
+        $comments = Comment::paginate(25);
+
         //dd($comments);
+
         return view('comment.index', compact('comments'));
     }
 
@@ -30,8 +34,9 @@ class CommentController extends Controller
      */
     public function create()
     {
-
-        return view('comment.create');
+        $comments = Comment::all();
+        //dd($comments);
+        return view('comment.create', compact('comments'));
     }
 
     /**
@@ -42,27 +47,17 @@ class CommentController extends Controller
      */
     public function store(StoreCommentRequest $request): RedirectResponse
     {
+        //dd($request);
         $comment = new Comment();
-        $comment->parent_id = $request->id ? $request->id : 0;
+        $comment->parent_id = $request->parent ? $request->parent : 0;
         $comment->user_id = $request->user_id;
         $comment->content = $request->content;
 
         if ($comment->save()) {
-            return redirect()->route('/comments');
+            return redirect()->route('comment.index');
         }
 
         return redirect()->route('comment.create');
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
     }
 
     /**
@@ -71,9 +66,10 @@ class CommentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Comment $comment)
     {
-        //
+        //dd($comment);
+        return view('comment.edit', compact('comment'));
     }
 
     /**
@@ -83,9 +79,15 @@ class CommentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(StoreCommentRequest $request, Comment $comment)
     {
-        //
+        if (! Gate::allows('update-comment', $comment)) {
+            abort(403);
+        }
+
+        $comment->update($request->validated());
+
+        return redirect()->route('comment.index');
     }
 
     /**
@@ -94,8 +96,14 @@ class CommentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Comment $comment)
     {
-        //
+        if (! Gate::allows('delete-comment', $comment)) {
+            abort(403);
+        }
+
+        $comment->delete();
+
+        return redirect()->route('comment.index');
     }
 }

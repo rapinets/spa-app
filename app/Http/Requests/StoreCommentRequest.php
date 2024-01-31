@@ -13,7 +13,14 @@ class StoreCommentRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return  auth('web')->check();
+    }
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            "user_id" => auth("web")->id(),
+        ]);
     }
 
     /**
